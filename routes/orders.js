@@ -124,8 +124,8 @@ router.post('/:id/cancel', checkLogin, async function (req, res, next) {
     }
 });
 
-// DELETE /orders/:id - soft delete, chi ADMIN
-router.delete('/:id', checkLogin, checkRole('ADMIN'), async function (req, res, next) {
+// DELETE /orders/:id - soft delete, chi ADMIN hoac MODERATOR
+router.delete('/:id', checkLogin, checkRole('ADMIN', 'MODERATOR'), async function (req, res, next) {
     try {
         let updatedItem = await orderModel.findByIdAndUpdate(
             req.params.id, { isDeleted: true }, { new: true }

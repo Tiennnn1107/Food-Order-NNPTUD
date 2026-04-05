@@ -63,7 +63,7 @@ router.post('/', checkLogin, uploadImage.single('file'), async function (req, re
             order: req.body.order,
             rating: req.body.rating,
             comment: req.body.comment || "",
-            imageUrl: req.file ? req.file.path : ""
+            imageUrl: req.file ? '/uploads/' + req.file.filename : ""
         });
         await newReview.save();
         await newReview.populate('user', 'username avatarUrl');
@@ -98,7 +98,7 @@ router.delete('/:id', checkLogin, async function (req, res, next) {
         if (!review) return res.status(404).send({ message: "id not found" });
         let userController = require('../controllers/users');
         let user = await userController.FindByID(req.userId);
-        if (review.user.toString() !== req.userId && user.role.name !== 'ADMIN') {
+        if (review.user.toString() !== req.userId && user.role.name !== 'ADMIN' && user.role.name !== 'MODERATOR') {
             return res.status(403).send({ message: "ban khong co quyen xoa review nay" });
         }
         review.isDeleted = true;

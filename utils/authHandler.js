@@ -16,14 +16,13 @@ module.exports = {
                 token = authorizationToken.split(' ')[1];
             }
             let result = jwt.verify(token, 'FOOD_ORDER_SECRET');
-            if (result.exp > Date.now()) {
-                req.userId = result.id;
-                next();
-            } else {
-                res.status(403).send({ message: "token het han, vui long dang nhap lai" });
-            }
+            // jwt.verify da kiem tra expiry tu dong, khong can kiem tra lai
+            req.userId = result.id;
+            req.userRole = result.role;
+            next();
         } catch (error) {
-            res.status(403).send({ message: "ban chua dang nhap" });
+            console.error("Auth error:", error.message);
+            res.status(403).send({ message: "token khong hop le hoac het han" });
         }
     },
 

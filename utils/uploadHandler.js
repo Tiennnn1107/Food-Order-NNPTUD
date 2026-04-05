@@ -1,9 +1,15 @@
 let multer = require('multer');
 let path = require('path');
+let fs = require('fs');
+
+const UPLOAD_DIR = 'uploads/';
+if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR);
+}
 
 let storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/');
+        cb(null, UPLOAD_DIR);
     },
     filename: function (req, file, cb) {
         let ext = path.extname(file.originalname);

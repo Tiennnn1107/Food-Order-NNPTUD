@@ -16,8 +16,10 @@ router.get('/', checkLogin, async function (req, res, next) {
 
 // POST /cart/add - them mon vao gio hang
 router.post('/add', checkLogin, async function (req, res, next) {
-    let { food, quantity } = req.body;
-    let getFood = await foodModel.findOne({ _id: food, isDeleted: false, isAvailable: true });
+    let foodId = req.body.foodId || req.body.food;
+    let { quantity, note } = req.body;
+    
+    let getFood = await foodModel.findOne({ _id: foodId, isDeleted: false, isAvailable: true });
     if (!getFood) {
         return res.status(404).send({ message: "mon an khong ton tai hoac da het hang" });
     }
@@ -25,11 +27,12 @@ router.post('/add', checkLogin, async function (req, res, next) {
     if (!cart) {
         return res.status(404).send({ message: "gio hang khong ton tai" });
     }
-    let existItem = cart.cartItems.find(e => e.food.toString() === food);
+    let existItem = cart.cartItems.find(e => e.food.toString() === foodId);
     if (existItem) {
         existItem.quantity += (quantity || 1);
+        if (note !== undefined) existItem.note = note;
     } else {
-        cart.cartItems.push({ food: food, quantity: quantity || 1 });
+        cart.cartItems.push({ food: foodId, quantity: quantity || 1, note: note || "" });
     }
     await cart.save();
     await cart.populate('cartItems.food', 'name price imageUrl');
@@ -38,10 +41,10 @@ router.post('/add', checkLogin, async function (req, res, next) {
 
 // POST /cart/reduce - giam so luong 1 mon
 router.post('/reduce', checkLogin, async function (req, res, next) {
-    let { food } = req.body;
+    let foodId = req.body.foodId || req.body.food;
     let cart = await cartModel.findOne({ user: req.userId });
     if (!cart) return res.status(404).send({ message: "gio hang khong ton tai" });
-    let index = cart.cartItems.findIndex(e => e.food.toString() === food);
+    let index = cart.cartItems.findIndex(e => e.food.toString() === foodId);
     if (index >= 0) {
         cart.cartItems[index].quantity -= 1;
         if (cart.cartItems[index].quantity <= 0) {
@@ -55,10 +58,10 @@ router.post('/reduce', checkLogin, async function (req, res, next) {
 
 // POST /cart/remove - xoa 1 mon khoi gio hang
 router.post('/remove', checkLogin, async function (req, res, next) {
-    let { food } = req.body;
+    let foodId = req.body.foodId || req.body.food;
     let cart = await cartModel.findOne({ user: req.userId });
     if (!cart) return res.status(404).send({ message: "gio hang khong ton tai" });
-    let index = cart.cartItems.findIndex(e => e.food.toString() === food);
+    let index = cart.cartItems.findIndex(e => e.food.toString() === foodId);
     if (index >= 0) {
         cart.cartItems.splice(index, 1);
     }

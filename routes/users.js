@@ -6,8 +6,8 @@ let userModel = require('../schemas/users');
 let cartModel = require('../schemas/cart');
 let userController = require('../controllers/users');
 
-// GET /users - lay tat ca user (chi ADMIN)
-router.get('/', checkLogin, checkRole('ADMIN'), async function (req, res, next) {
+// GET /users - lay tat ca user (ADMIN hoac MODERATOR)
+router.get('/', checkLogin, checkRole('ADMIN', 'MODERATOR'), async function (req, res, next) {
     let result = await userController.getAllUser();
     res.send(result);
 });

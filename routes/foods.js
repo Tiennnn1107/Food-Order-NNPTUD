@@ -35,7 +35,7 @@ router.get('/:id', async function (req, res, next) {
 });
 
 // POST /foods - chi ADMIN tao mon an moi
-router.post('/', checkLogin, checkRole('ADMIN'), foodPostValidation, validateResult, async function (req, res, next) {
+router.post('/', checkLogin, checkRole('ADMIN', 'MODERATOR'), foodPostValidation, validateResult, async function (req, res, next) {
     try {
         let newItem = new foodModel({
             name: req.body.name,
@@ -55,14 +55,14 @@ router.post('/', checkLogin, checkRole('ADMIN'), foodPostValidation, validateRes
 });
 
 // POST /foods/:id/upload-image - upload anh mon an
-router.post('/:id/upload-image', checkLogin, checkRole('ADMIN'), uploadImage.single('file'), async function (req, res, next) {
+router.post('/:id/upload-image', checkLogin, checkRole('ADMIN', 'MODERATOR'), uploadImage.single('file'), async function (req, res, next) {
     try {
         if (!req.file) {
             return res.status(400).send({ message: "khong co file duoc upload" });
         }
         let updatedItem = await foodModel.findByIdAndUpdate(
             req.params.id,
-            { imageUrl: req.file.path },
+            { imageUrl: '/uploads/' + req.file.filename },
             { new: true }
         );
         if (!updatedItem) return res.status(404).send({ message: "id not found" });
@@ -73,7 +73,7 @@ router.post('/:id/upload-image', checkLogin, checkRole('ADMIN'), uploadImage.sin
 });
 
 // PUT /foods/:id - chi ADMIN
-router.put('/:id', checkLogin, checkRole('ADMIN'), async function (req, res, next) {
+router.put('/:id', checkLogin, checkRole('ADMIN', 'MODERATOR'), async function (req, res, next) {
     try {
         if (req.body.name) {
             req.body.slug = ConvertToSlug(req.body.name);
@@ -89,7 +89,7 @@ router.put('/:id', checkLogin, checkRole('ADMIN'), async function (req, res, nex
 });
 
 // DELETE /foods/:id - soft delete, chi ADMIN
-router.delete('/:id', checkLogin, checkRole('ADMIN'), async function (req, res, next) {
+router.delete('/:id', checkLogin, checkRole('ADMIN', 'MODERATOR'), async function (req, res, next) {
     try {
         let updatedItem = await foodModel.findByIdAndUpdate(
             req.params.id, { isDeleted: true }, { new: true }

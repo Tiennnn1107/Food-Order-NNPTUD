@@ -4,14 +4,14 @@ let { checkLogin, checkRole } = require('../utils/authHandler');
 let voucherModel = require('../schemas/vouchers');
 
 // GET /vouchers - ADMIN xem tat ca voucher
-router.get('/', checkLogin, checkRole('ADMIN'), async function (req, res, next) {
+router.get('/', checkLogin, checkRole('ADMIN', 'MODERATOR'), async function (req, res, next) {
     let vouchers = await voucherModel.find({ isDeleted: false })
         .sort({ createdAt: -1 });
     res.send(vouchers);
 });
 
 // GET /vouchers/:id - ADMIN xem chi tiet 1 voucher
-router.get('/:id', checkLogin, checkRole('ADMIN'), async function (req, res, next) {
+router.get('/:id', checkLogin, checkRole('ADMIN', 'MODERATOR'), async function (req, res, next) {
     try {
         let result = await voucherModel.findOne({ _id: req.params.id, isDeleted: false });
         if (!result) return res.status(404).send({ message: "id not found" });
@@ -83,7 +83,7 @@ router.post('/check', checkLogin, async function (req, res, next) {
 });
 
 // POST /vouchers - ADMIN tao voucher moi
-router.post('/', checkLogin, checkRole('ADMIN'), async function (req, res, next) {
+router.post('/', checkLogin, checkRole('ADMIN', 'MODERATOR'), async function (req, res, next) {
     try {
         let newVoucher = new voucherModel({
             code: req.body.code,
@@ -105,7 +105,7 @@ router.post('/', checkLogin, checkRole('ADMIN'), async function (req, res, next)
 });
 
 // PUT /vouchers/:id - ADMIN cap nhat voucher
-router.put('/:id', checkLogin, checkRole('ADMIN'), async function (req, res, next) {
+router.put('/:id', checkLogin, checkRole('ADMIN', 'MODERATOR'), async function (req, res, next) {
     try {
         let updatedVoucher = await voucherModel.findByIdAndUpdate(
             req.params.id, req.body, { new: true }
@@ -118,7 +118,7 @@ router.put('/:id', checkLogin, checkRole('ADMIN'), async function (req, res, nex
 });
 
 // PUT /vouchers/:id/toggle - ADMIN bat/tat voucher
-router.put('/:id/toggle', checkLogin, checkRole('ADMIN'), async function (req, res, next) {
+router.put('/:id/toggle', checkLogin, checkRole('ADMIN', 'MODERATOR'), async function (req, res, next) {
     try {
         let voucher = await voucherModel.findOne({ _id: req.params.id, isDeleted: false });
         if (!voucher) return res.status(404).send({ message: "id not found" });
@@ -134,7 +134,7 @@ router.put('/:id/toggle', checkLogin, checkRole('ADMIN'), async function (req, r
 });
 
 // DELETE /vouchers/:id - soft delete, chi ADMIN
-router.delete('/:id', checkLogin, checkRole('ADMIN'), async function (req, res, next) {
+router.delete('/:id', checkLogin, checkRole('ADMIN', 'MODERATOR'), async function (req, res, next) {
     try {
         let updatedVoucher = await voucherModel.findByIdAndUpdate(
             req.params.id, { isDeleted: true }, { new: true }

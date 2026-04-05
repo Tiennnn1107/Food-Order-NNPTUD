@@ -24,7 +24,7 @@ router.get('/:id', async function (req, res, next) {
 });
 
 // POST /categories - chi ADMIN
-router.post('/', checkLogin, checkRole('ADMIN'), async function (req, res, next) {
+router.post('/', checkLogin, checkRole('ADMIN', 'MODERATOR'), async function (req, res, next) {
     try {
         let newItem = new categoryModel({
             name: req.body.name,
@@ -39,7 +39,7 @@ router.post('/', checkLogin, checkRole('ADMIN'), async function (req, res, next)
 });
 
 // PUT /categories/:id - chi ADMIN
-router.put('/:id', checkLogin, checkRole('ADMIN'), async function (req, res, next) {
+router.put('/:id', checkLogin, checkRole('ADMIN', 'MODERATOR'), async function (req, res, next) {
     try {
         let updatedItem = await categoryModel.findByIdAndUpdate(
             req.params.id, req.body, { new: true }
@@ -52,7 +52,7 @@ router.put('/:id', checkLogin, checkRole('ADMIN'), async function (req, res, nex
 });
 
 // DELETE /categories/:id - soft delete, chi ADMIN
-router.delete('/:id', checkLogin, checkRole('ADMIN'), async function (req, res, next) {
+router.delete('/:id', checkLogin, checkRole('ADMIN', 'MODERATOR'), async function (req, res, next) {
     try {
         let updatedItem = await categoryModel.findByIdAndUpdate(
             req.params.id, { isDeleted: true }, { new: true }

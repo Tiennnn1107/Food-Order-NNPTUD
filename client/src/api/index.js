@@ -1,0 +1,10 @@
+export { default as authAPI } from './auth';
+export { default as foodsAPI } from './foods';
+export { default as categoriesAPI } from './categories';
+export { default as ordersAPI } from './orders';
+export { default as cartAPI } from './cart';
+export { default as reviewsAPI } from './reviews';
+export { default as addressesAPI } from './addresses';
+export { default as vouchersAPI } from './vouchers';
+export { default as usersAPI } from './users';
+export { default as rolesAPI } from './roles';
