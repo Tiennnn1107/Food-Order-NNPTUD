@@ -3,6 +3,7 @@ var router = express.Router();
 let userController = require('../controllers/users');
 let bcrypt = require('bcrypt');
 let jwt = require('jsonwebtoken');
+let crypto = require('crypto');
 let { checkLogin } = require('../utils/authHandler');
 let roleModel = require('../schemas/roles');
 let cartModel = require('../schemas/cart');
@@ -135,6 +136,91 @@ router.put('/change-password', checkLogin, async function (req, res, next) {
         await user.save();
         res.send({ message: "Doi mat khau thanh cong" });
     } catch (err) {
+        res.status(400).send({ message: err.message });
+    }
+});
+
+// POST /auth/forgot-password - gui yeu cau khoi phuc mat khau
+router.post('/forgot-password', async function (req, res, next) {
+    try {
+        let { email } = req.body;
+        console.log('Forgot password request for:', email);
+
+        if (!email) {
+            return res.status(400).send({ message: "Email la bat buoc" });
+        }
+
+        let user = await userModel.findOne({ email: email.toLowerCase(), isDeleted: false });
+        console.log('User found:', user ? user.email : 'none');
+
+        if (!user) {
+            // Tra ve success de tranh bi liet ke email
+            return res.send({ message: "Neu email ton tai, chung toi da gui huong dan khoi phuc mat khau" });
+        }
+
+        // Tao token reset password
+        let resetToken = crypto.randomBytes(32).toString('hex');
+        console.log('Generated reset token:', resetToken);
+
+        // Luu token vao database
+        let hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+        console.log('Hashed token to save:', hashedToken);
+
+        user.forgotPasswordToken = hashedToken;
+        user.forgotPasswordTokenExp = new Date(Date.now() + 30 * 60 * 1000); // 30 phut
+        await user.save();
+
+        console.log('Saved to DB - token:', user.forgotPasswordToken, 'exp:', user.forgotPasswordTokenExp);
+
+        // TODO: Goi API gui email (hien tai chi tra ve token de test)
+        // Trong thuc te, su dung nodemailer hoac dich vu email de gui
+
+        res.send({
+            message: "Neu email ton tai, chung toi da gui huong dan khoi phuc mat khau",
+            resetToken: resetToken // Remove trong production
+        });
+    } catch (err) {
+        console.error('Forgot password error:', err.message);
+        res.status(400).send({ message: err.message });
+    }
+});
+
+// POST /auth/reset-password - dat lai mat khau
+router.post('/reset-password', async function (req, res, next) {
+    try {
+        let { token, newPassword } = req.body;
+        console.log('Reset password request:', { token: token?.substring(0, 10) + '...', newPassword: newPassword ? '***' : undefined });
+
+        if (!token || !newPassword) {
+            console.log('Missing token or newPassword');
+            return res.status(400).send({ message: "Token va mat khau moi la bat buoc" });
+        }
+
+        // Hash token de so sanh voi database
+        let hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+        console.log('Hashed token:', hashedToken);
+
+        let user = await userModel.findOne({
+            forgotPasswordToken: hashedToken,
+            forgotPasswordTokenExp: { $gt: Date.now() },
+            isDeleted: false
+        });
+
+        console.log('User found:', user ? user.email : 'none');
+
+        if (!user) {
+            return res.status(400).send({ message: "Token khong hop le hoac da het han" });
+        }
+
+        // Dat lai mat khau
+        user.password = newPassword;
+        user.forgotPasswordToken = '';
+        user.forgotPasswordTokenExp = undefined;
+        await user.save();
+
+        res.send({ message: "Dat lai mat khau thanh cong" });
+    } catch (err) {
+        console.error('Reset password error:', err.message);
         res.status(400).send({ message: err.message });
     }
 });

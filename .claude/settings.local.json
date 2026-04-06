@@ -6,7 +6,9 @@
       "Bash(npx tailwindcss:*)",
       "Bash(./node_modules/.bin/tailwindcss init:*)",
       "Bash(npm run:*)",
-      "Bash(npm start:*)"
+      "Bash(npm start:*)",
+      "Bash(dir /b C:\\\\Users\\\\admin\\\\Food-Order-NNPTUD\\\\*.js C:\\\\Users\\\\admin\\\\Food-Order-NNPTUD\\\\*.json)",
+      "Bash(findstr /v node_modules)"
     ]
   }
 }

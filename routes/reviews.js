@@ -37,6 +37,11 @@ router.get('/:id', async function (req, res, next) {
 // POST /reviews - CUSTOMER tao review sau khi da delivered
 router.post('/', checkLogin, uploadImage.single('file'), async function (req, res, next) {
     try {
+        console.log('Review submission:', {
+            file: req.file ? { filename: req.file.filename, path: req.file.path } : null,
+            body: req.body
+        });
+
         // Kiem tra order da delivered chua
         let order = await orderModel.findOne({
             _id: req.body.order,
@@ -57,19 +62,24 @@ router.post('/', checkLogin, uploadImage.single('file'), async function (req, re
         if (existReview) {
             return res.status(400).send({ message: "ban da danh gia mon an nay roi" });
         }
+        let imageUrl = req.file ? '/uploads/' + req.file.filename : "";
+        console.log('Saving review with imageUrl:', imageUrl);
+
         let newReview = new reviewModel({
             user: req.userId,
             food: req.body.food,
             order: req.body.order,
             rating: req.body.rating,
             comment: req.body.comment || "",
-            imageUrl: req.file ? '/uploads/' + req.file.filename : ""
+            imageUrl: imageUrl
         });
         await newReview.save();
         await newReview.populate('user', 'username avatarUrl');
         await newReview.populate('food', 'name');
+        console.log('Review saved:', newReview);
         res.send(newReview);
     } catch (err) {
+        console.error('Review error:', err.message);
         res.status(400).send({ message: err.message });
     }
 });

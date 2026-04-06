@@ -54,9 +54,16 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await login(formData);
+      const response = await login(formData);
       setToast({ message: 'Đăng nhập thành công', type: 'success' });
-      // Logic redirect se duoc xu ly boi useEffect khi user state thay doi
+
+      // Redirect ngay lap tuc tuy theo role
+      const userRole = response.user?.role?.name || response.user?.role;
+      if (userRole === 'ADMIN' || userRole === 'MODERATOR') {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
     } catch (error) {
       setToast({
         message: error.response?.data?.message || 'Đăng nhập thất bại',
@@ -105,6 +112,11 @@ const Login = () => {
                 placeholder="Nhập mật khẩu"
                 required
               />
+              <div className="mt-2 text-right">
+                <Link to="/forgot-password" className="text-sm text-primary-500 hover:underline">
+                  Quên mật khẩu?
+                </Link>
+              </div>
             </div>
 
             <button

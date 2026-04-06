@@ -11,7 +11,6 @@ const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'CUSTOMER', // Mac dinh la CUSTOMER
   });
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
@@ -94,20 +93,6 @@ const Register = () => {
                 value={formData.email}
                 onChange={handleChange}
               />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Vai trò (Role)</label>
-              <select
-                name="role"
-                className="input-field bg-primary-50 border-primary-200 font-bold text-primary-700"
-                value={formData.role}
-                onChange={handleChange}
-              >
-                <option value="CUSTOMER">KHÁCH HÀNG (Customer)</option>
-                <option value="ADMIN">QUẢN TRỊ VIÊN (Admin)</option>
-                <option value="MODERATOR">QUẢN LÝ (Moderator)</option>
-              </select>
-              <p className="text-[10px] text-gray-400 mt-1">* Chỉ hiển thị để test chức năng phân quyền</p>
             </div>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>

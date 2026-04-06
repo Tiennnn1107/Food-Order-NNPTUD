@@ -10,6 +10,7 @@ import Foods from './pages/Foods';
 import FoodDetail from './pages/FoodDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 
 // User Pages
 import Cart from './pages/Cart';
@@ -43,6 +44,7 @@ function App() {
               <Route path="/foods/:id" element={<FoodDetail />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
 
               {/* Protected User Routes */}
               <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
